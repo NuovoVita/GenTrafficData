@@ -6,8 +6,8 @@ import time
 import redis
 
 
-class GenAttackTrafficData(object):
-    queue_key = 'task:attack-traffic:queue'
+class GenProtoTrafficData(object):
+    queue_key = 'task:proto-traffic:queue'
 
     @classmethod
     def _con_redis(cls, host='127.0.0.1', port=6379, db=0):
@@ -18,16 +18,23 @@ class GenAttackTrafficData(object):
     def producer_traffic(cls, host='127.0.0.1', port=6379, db=0, num=1000):
         redis_client = cls._con_redis(host, port, db)
         traffic = {
-            'ifname': 'LAN1',
-            'type': 'ICMPFlood',
+            'timestamp': 1662458092,
+            'proto': 'domain',
             'up_b': 0,
             'down_b': 0,
             'up_p': 0,
             'down_p': 0,
-            'timestamp': 1662458092,
         }
-        ifname_lst = ['LAN1', 'LAN2', 'LAN3', 'LAN4']
-        attack_type_lst = ['ICMPFlood', 'Land', 'Smurf', 'SynFlood', 'TCPFlag', 'UDPFlood']
+        proto_lst = [
+            'osu-nms', 'domain', 'efs', 'oob-ws-https', 'teedtap', 'opcda', 'kpasswd', 'pcanywherestat', 'echo',
+            'gprs-data', 'BACnet', 'ENIP-UDP', 'ibm-db2', 'sunrpc', 'ntalk', 'netiq-ncap', 'xdmcp', 'ingreslock',
+            'sip', 'pkix-3-ca-ra', 'epmap', 'svrloc', 'pnrt', 'pcp', 'scol', 'snmp', 'daytime', 'cmip-agent',
+            'netbios-dgm', 'ms-sql-m', 'compressnet', 'netop-school', 'fins', 'rfile', 'cadlock2', 'vrtl-vmf-sa',
+            'mobileip-agent', 'pcmail-srv', 'retrospect', 'UNKNOW', 'smux', 'ntp', 'cisco-sccp', 'oob-ws-http',
+            'dbase', 'dhcp', 'tftp', 'qotd', 'goose', 'ws-discovery', 'dhcpv6-server', 'netbios-ns', 'tacacs',
+            'bootps', 'dns', 'timbuktu', 'dcerpcudp', 'chargen', 'http-rpc-epmap', 'ssdp', 'nameserver', 'puprouter',
+            'talk', 'ftp-data',
+        ]
         start = int(time.time()) - 60 * 60 * 8
         while num:
             start += random.randint(0, 10)
@@ -35,8 +42,7 @@ class GenAttackTrafficData(object):
                 if index >= num:
                     break
 
-                traffic['ifname'] = random.choice(ifname_lst)
-                traffic['type'] = random.choice(attack_type_lst)
+                traffic['proto'] = random.choice(proto_lst)
                 traffic['up_b'] = random.randint(0, 10000)
                 traffic['down_b'] = random.randint(0, 10000)
                 traffic['up_p'] = random.randint(0, 10000)
@@ -48,4 +54,4 @@ class GenAttackTrafficData(object):
 
 
 if __name__ == '__main__':
-    GenAttackTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=50000)
+    GenProtoTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=50000)
