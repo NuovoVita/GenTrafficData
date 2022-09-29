@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import math
 import random
 import time
 
@@ -7,6 +8,8 @@ import redis
 
 
 class GenPkgLengthData(object):
+    size = 1000
+    ifname_lst = ['LAN1', 'LAN2', 'LAN3', 'LAN4']
     queue_key = 'task:packet-length-traffic:queue'
 
     @classmethod
@@ -35,15 +38,12 @@ class GenPkgLengthData(object):
             'down_gear_6th': 0,
             'down_gear_7th': 0,
         }
-        ifname_lst = ['LAN1', 'LAN2', 'LAN3', 'LAN4']
-        start = int(time.time()) - 60 * 60 * 8
+
+        start = int(time.time()) - math.ceil(num / cls.size * 1.0)
         while num:
             start += random.randint(0, 10)
-            for index in range(10000):
-                if index >= num:
-                    break
-
-                traffic['ifname'] = random.choice(ifname_lst)
+            for _ in range(cls.size):
+                traffic['ifname'] = random.choice(cls.ifname_lst)
                 traffic['up_gear_1st'] = random.randint(0, 10000)
                 traffic['up_gear_2nd'] = random.randint(0, 10000)
                 traffic['up_gear_3rd'] = random.randint(0, 10000)
@@ -60,6 +60,8 @@ class GenPkgLengthData(object):
                 result = redis_client.rpush(cls.queue_key, json.dumps(traffic))
                 if result:
                     num -= 1
+                if num <= 0:
+                    break
 
 
 if __name__ == '__main__':

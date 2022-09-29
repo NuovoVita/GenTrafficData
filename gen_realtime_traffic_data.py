@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import math
 import random
 import time
 
@@ -7,6 +8,8 @@ import redis
 
 
 class GenRealtimeTrafficData(object):
+    size = 1000
+    ifname_lst = ['LAN1', 'LAN2', 'LAN3', 'LAN4']
     queue_key = 'task:realtime-traffic:queue'
 
     @classmethod
@@ -19,21 +22,17 @@ class GenRealtimeTrafficData(object):
         redis_client = cls._con_redis(host, port, db)
         traffic = {
             'ifname': 'LAN1',
-            'up_b': 34820,
-            'down_b': 34820,
-            'up_p': 344,
-            'down_p': 344,
+            'up_b': 0,
+            'down_b': 0,
+            'up_p': 0,
+            'down_p': 0,
             'timestamp': 1662458092,
         }
-        ifname_lst = ['LAN1', 'LAN2', 'LAN3', 'LAN4']
-        start = int(time.time()) - 60 * 60 * 8
+        start = int(time.time()) - math.ceil(num / cls.size * 1.0)
         while num:
-            start += random.randint(0, 10)
-            for index in range(10000):
-                if index >= num:
-                    break
-
-                traffic['ifname'] = random.choice(ifname_lst)
+            start += random.randint(0, 5)
+            for _ in range(cls.size):
+                traffic['ifname'] = random.choice(cls.ifname_lst)
                 traffic['up_b'] = random.randint(0, 10000)
                 traffic['down_b'] = random.randint(0, 10000)
                 traffic['up_p'] = random.randint(0, 10000)
@@ -42,6 +41,8 @@ class GenRealtimeTrafficData(object):
                 result = redis_client.rpush(cls.queue_key, json.dumps(traffic))
                 if result:
                     num -= 1
+                if num <= 0:
+                    break
 
 
 if __name__ == '__main__':

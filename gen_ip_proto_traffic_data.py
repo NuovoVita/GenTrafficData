@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import math
 import random
 import time
 
@@ -8,6 +9,8 @@ import redis
 
 
 class GenIPProtoTrafficData(object):
+    size = 1000
+    video_proto_lst = ['sip', 'rtsp', 'onvif', 'rtp']
     queue_key = 'task:ip-proto-traffic:queue'
 
     @classmethod
@@ -20,24 +23,22 @@ class GenIPProtoTrafficData(object):
         redis_client = cls._con_redis(host, port, db)
         traffic = {
             'timestamp': 1662458092,
-            'proto': 'domain',
+            'proto': 'sip',
             'up_b': 0,
             'down_b': 0,
             'up_p': 0,
             'down_p': 0,
             'ip': '127.0.0.1'
         }
-        video_proto_lst = ['sip', 'rtsp', 'onvif', 'rtp']
-        fake = faker.Faker()
-        start = int(time.time()) - 60 * 60 * 8
-        while num:
-            start += random.randint(0, 10)
-            for index in range(10000):
-                if index >= num:
-                    break
 
-                traffic['ip'] = fake.ipv4() if random.randint(0, 100) % 10 else fake.ipv6()
-                traffic['proto'] = random.choice(video_proto_lst)
+        fake = faker.Faker()
+        ip_res = [(fake.ipv4() if random.randint(0, 1000) % 1000 else fake.ipv6()) for _ in range(1000)]
+        start = int(time.time()) - math.ceil(num / cls.size * 1.0)
+        while num:
+            start += random.randint(0, 5)
+            for _ in range(cls.size):
+                traffic['ip'] = random.choice(ip_res)
+                traffic['proto'] = random.choice(cls.video_proto_lst)
                 traffic['up_b'] = random.randint(0, 10000)
                 traffic['down_b'] = random.randint(0, 10000)
                 traffic['up_p'] = random.randint(0, 10000)
@@ -46,6 +47,8 @@ class GenIPProtoTrafficData(object):
                 result = redis_client.rpush(cls.queue_key, json.dumps(traffic))
                 if result:
                     num -= 1
+                if num <= 0:
+                    break
 
 
 if __name__ == '__main__':
