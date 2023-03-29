@@ -38,7 +38,7 @@ class GenProtoTrafficData(object):
             'down_p': 0,
         }
 
-        start = int(time.time()) - math.ceil(num / cls.size * 1.0)
+        start = int(time.time()) - math.ceil(num / cls.size * 1.0) - 3600 * 24 * 8
         while num:
             start += random.randint(0, 5)
             for _ in range(cls.size):
@@ -56,4 +56,4 @@ class GenProtoTrafficData(object):
 
 
 if __name__ == '__main__':
-    GenProtoTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=50000)
+    GenProtoTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=5000000)

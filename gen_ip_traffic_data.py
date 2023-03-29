@@ -30,17 +30,18 @@ class GenIPTrafficData(object):
         }
 
         fake = faker.Faker()
-        ip_res = [(fake.ipv4() if random.randint(0, 1000) % 1000 else fake.ipv6()) for _ in range(1000)]
-        start = int(time.time()) - math.ceil(num / cls.size * 1.0)
+        ip_res = [(fake.ipv4() if random.randint(0, 1000) % 1000 else fake.ipv6()) for _ in range(500000)]
+        _start = int(time.time()) - math.ceil(num / cls.size * 1.0) - 3600 * 24 * 20
         while num:
-            start += random.randint(0, 5)
+            _now = int(time.time()) - 3600
+            # _start = _now - 3600
             for _ in range(cls.size):
                 traffic['ip'] = random.choice(ip_res)
                 traffic['up_b'] = random.randint(0, 10000)
                 traffic['down_b'] = random.randint(0, 10000)
                 traffic['up_p'] = random.randint(0, 10000)
                 traffic['down_p'] = random.randint(0, 10000)
-                traffic['timestamp'] = start
+                traffic['timestamp'] = random.randint(_start, _now)
                 result = redis_client.rpush(cls.queue_key, json.dumps(traffic))
                 if result:
                     num -= 1
@@ -49,4 +50,4 @@ class GenIPTrafficData(object):
 
 
 if __name__ == '__main__':
-    GenIPTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=5000)
+    GenIPTrafficData.producer_traffic(host='192.168.1.70', port=6379, db=0, num=50000)

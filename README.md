@@ -27,3 +27,7 @@ python3 gen_traffic_main.py
 # 当然，也可以单独生成每一种的流量数据。以攻击流量测试数据为例：
 python3 gen_attack_traffic_data.py
 ```
+
+## 参考
+
+- [详解multiprocessing多进程-process模块](https://blog.csdn.net/brucewong0516/article/details/85776194)
