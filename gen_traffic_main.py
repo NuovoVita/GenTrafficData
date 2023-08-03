@@ -1,6 +1,7 @@
 import multiprocessing as mp
 
 from gen_attack_traffic_data import GenAttackTrafficData
+from gen_audit_proto_data import GenAuditProtoData
 from gen_diag_traffic_data import GenDiagTrafficData
 from gen_ip_proto_traffic_data import GenIPProtoTrafficData
 from gen_ip_traffic_data import GenIPTrafficData
@@ -14,6 +15,7 @@ from gen_type_traffic_data import GenTypeTrafficData
 def gen_traffic_process(host='127.0.0.1', port=6379, db=0, num=50000):
     processes = [
         mp.Process(target=GenAttackTrafficData.producer_traffic, args=(host, port, db, num)),
+        mp.Process(target=GenAuditProtoData.producer_traffic, args=(host, port, db, num)),
         mp.Process(target=GenDiagTrafficData.producer_traffic, args=(host, port, db, num)),
         mp.Process(target=GenIPProtoTrafficData.producer_traffic, args=(host, port, db, num)),
         mp.Process(target=GenIPTrafficData.producer_traffic, args=(host, port, db, num)),
